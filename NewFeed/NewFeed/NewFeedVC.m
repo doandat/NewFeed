@@ -15,6 +15,13 @@
 #import "NewFeedFourImageCell.h"
 #import "NewFeedFiveImageCell.h"
 
+#import "FSBasicImage.h"
+#import "FSBasicImageSource.h"
+
+static NSString *const kURLImage = @"http://mac24h.vn/images/detailed/43/1447970480000_IMG_556164_3n08-mj.jpg";
+
+//http://mac24h.vn/images/detailed/43/1447970480000_IMG_556164_3n08-mj.jpg
+
 @interface NewFeedVC ()<UITableViewDelegate, UITableViewDataSource>
 
 @property (weak, nonatomic) IBOutlet UITableView *tbNewFeed;
@@ -195,6 +202,9 @@
     [pCell fillDataForCell];
 
     //2. event
+    
+    __weak typeof (self) thiz = self;
+    
     [pCell setEventSelectLike:^(BOOL isLiked) {
         
     }];
@@ -205,6 +215,9 @@
     
     [pCell setEventSelectImg1:^{
         
+        NSArray *pArr = [NSArray arrayWithObjects:kURLImage,kURLImage,kURLImage,kURLImage,kURLImage, nil];
+        
+        [thiz previewImageWithArray:pArr atIdx:0];
     }];
     
     [pCell setEventSelectImg2:^{
@@ -225,6 +238,27 @@
     
     
     return pCell;
+}
+
+
+////
+- (void)previewImageWithArray:(NSArray *)imageModels atIdx:(NSInteger)idx
+{
+    NSMutableArray<FSBasicImage*> *pImageContainer = [[NSMutableArray alloc] initWithCapacity:imageModels.count];
+    
+    for ( NSString *pItem in imageModels)
+    {
+        FSBasicImage *pImg = [[FSBasicImage alloc] initWithImageURL:[NSURL URLWithString:pItem]];
+        [pImageContainer addObject:pImg];
+    }
+    
+    FSBasicImageSource *photoSource = [[FSBasicImageSource alloc] initWithImages:pImageContainer];
+    FSImageViewerViewController *viewer = [[FSImageViewerViewController alloc] initWithImageSource:photoSource];
+    
+    viewer.sharingDisabled = YES;
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewer];
+    [viewer moveToImageAtIndex:idx animated:NO];
+    [self presentViewController:navigationController animated:YES completion:nil];
 }
 
 
